@@ -8,6 +8,7 @@ import Result from './components/Result'
 export class App extends Component {
   state = {
     questionBank: [],
+    answers:[],
     score: 0,
     responses: 0
   }
@@ -28,24 +29,39 @@ export class App extends Component {
     this.setState({
       score: 0,
       responses: 0,
+      answers : []
     })
   }
 
-  computeAnswer = (answer, correctAnswer) => {
+  computeAnswer = (answer, correctAnswer, qId) => {
+    
+    if (this.isAnswered(qId)) {
+      return false;
+    }
+    this.state.answers.push({"qId": qId});
+    let answers = this.state.answers;
+    console.log(answers);
     if (answer === correctAnswer){
       this.setState({
-        score: this.state.score + 1
+        score: this.state.score + 1,
+        answers: answers
       })
     }
     this.setState({
-      responses: this.state.responses < 5? this.state.responses + 1 : 5
+      responses: this.state.responses < 5? this.state.responses + 1 : 5,
+      answers: answers
     })
+  }
+
+  isAnswered(qId) {
+    console.log(this.state.answers)
+    return this.state.answers && this.state.answers.filter((answer) => answer.qId === qId).length > 0;
   }
 
 
   render() {
     const {questionBank} = this.state
-    return (
+        return (
       <div className='container'>
         <div className='title'>Random Quiz</div>
         {questionBank.length > 0 &&
@@ -53,7 +69,7 @@ export class App extends Component {
           <QuestionBox question={question} 
           options={answers} 
           key={questionId} 
-          selected={answer => this.computeAnswer(answer, correct)}
+          selected={answer => this.computeAnswer(answer, correct, questionId)}
           //toggle={text => this.check()}
           />
         ))}
